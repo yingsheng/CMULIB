@@ -29,9 +29,11 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import edu.cmu.cmulib.Master_forUI;
 import org.netlib.util.booleanW;
 
+import com.sun.corba.se.spi.orb.StringPair;
+
+import edu.cmu.cmulib.Master_forUI;
 import edu.cmu.cmulib.API.data.DoubleColumnInterpolationStrategy;
 import edu.cmu.cmulib.API.data.EmptyWrongDataStrategy;
 import edu.cmu.cmulib.API.data.HotDeckStrategy;
@@ -43,7 +45,10 @@ public class UI extends JPanel {
 
 	private static final long serialVersionUID = -3568891808859925700L;
 	private static final String[] ALGOS_NAME = { "SVD", "Decision Tree" };
-	private static final String[] VISUA_STRATEGY = { "2D", "3D", "paracoord" };
+	private static final String[] VISUA_STRATEGY = { "None", "2D", "3D",
+			"paracoord" };
+	private static final String[] SAMPLING_STRATEGY = { "None", "Random",
+			"Cluster" };
 	private static final String[] FILE_TO_DUMP_NAME = { "Input", "Result" };
 	private static final String TITLE = "CMULib";
 	private static final int GRID_GAP = 10;
@@ -63,8 +68,7 @@ public class UI extends JPanel {
 	private final JButton browse2Btn = new JButton("Browse");
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private final JComboBox algoListBox = new JComboBox(ALGOS_NAME);
-	private final JComboBox visuListBox = new JComboBox(VISUA_STRATEGY);
-	private final JComboBox sampListBox = new JComboBox();
+
 	private final JComboBox<WrongDataTypeStrategy> dataHandlingBox = new JComboBox<WrongDataTypeStrategy>();
 
 	/** prepossing area */
@@ -72,8 +76,13 @@ public class UI extends JPanel {
 
 	private final JButton Visualize = new JButton("Visualize");
 	private final JButton Sampling = new JButton("Sample");
+	private final JTextArea samplingRate = new JTextArea("1");
+	private final JTextArea numberOfSalveNodes = new JTextArea("1");
+	private final JComboBox visuListBox = new JComboBox(VISUA_STRATEGY);
+	private final JComboBox sampListBox = new JComboBox(SAMPLING_STRATEGY);
 	/** run button and progress area */
 	private final JButton runBtn = new JButton("Run");
+	private final JButton loadDataBtn = new JButton("Load Data");
 	private final JTextArea progressArea = new JTextArea(TEXT_AREA_HEIGHT,
 			TEXT_AREA_WIDTH);
 
@@ -83,7 +92,6 @@ public class UI extends JPanel {
 	private final JTextField dumpPathField = new JTextField(FIELD_LEN);
 	private final JButton browse3Btn = new JButton("Browse");
 	private final JButton startDumpBtn = new JButton("Start Downloading");
-
 
 	/** various file path string */
 	private final JFileChooser inputPathFC = new JFileChooser();
@@ -160,11 +168,11 @@ public class UI extends JPanel {
 
 		prePanel.add(new JLabel("Sampling Strategy:   "));
 		prePanel.add(sampListBox);
-		prePanel.add(Sampling);
+		// prePanel.add(Sampling);
 
 		prePanel.add(new JLabel("Visualization Strategy:   "));
 		prePanel.add(visuListBox);
-		prePanel.add(Visualize);
+		// prePanel.add(Visualize);
 
 		prePanel.add(new JLabel("Missing Data Handling: "));
 
@@ -173,6 +181,11 @@ public class UI extends JPanel {
 			dataHandlingBox.addItem(stra);
 		}
 		prePanel.add(dataHandlingBox);
+
+		prePanel.add(new JLabel("Sampling Rate (0~1.0) "));
+		prePanel.add(samplingRate);
+		prePanel.add(new JLabel("Number of Slave Nodes"));
+		prePanel.add(numberOfSalveNodes);
 
 		prePanel.setLayout(new GridLayout(3, 1, 3, GRID_GAP));
 		prePanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
@@ -185,12 +198,19 @@ public class UI extends JPanel {
 		runPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
 				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
-        /** advance panel */
-        JPanel advancePanel = new JPanel();
-        advancePanel.add(advanceButton);
-        advanceButton.setPreferredSize(new Dimension(500, 50));
-        advancePanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
-                5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
+		// ** load data panel */
+		JPanel loadDataPanel = new JPanel();
+		loadDataPanel.add(loadDataBtn);
+		loadDataBtn.setPreferredSize(new Dimension(500, 50));
+		loadDataPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
+				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
+
+		/** advance panel */
+		JPanel advancePanel = new JPanel();
+		advancePanel.add(advanceButton);
+		advanceButton.setPreferredSize(new Dimension(500, 50));
+		advancePanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
+				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
 		/** progress panel */
 		JPanel progressPanel = new JPanel();
@@ -236,49 +256,33 @@ public class UI extends JPanel {
 		startDownPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
 				BORDER_LEN, 5 * BORDER_LEN, BORDER_LEN));
 
-		/** put together */
-        /*
-		prePanel.setVisible(false);
+		JPanel leftPanel = new JPanel();
+		JPanel rightPanel = new JPanel();
+		JButton dataInjectionBtn = new JButton();
+		leftPanel.add(inputPanel);
+		// // advanceButton.setPreferredSize(new Dimension(10, 10));
+		// // inputPanel.add(advanceButton);
+		progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
+		leftPanel.add(advancePanel);
+		leftPanel.add(prePanel);
+		leftPanel.add(loadDataPanel);
+		leftPanel.add(runPanel);
+		rightPanel.add(progressPanel);
+		rightPanel.add(dumpPanel);
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+
 		frame.getContentPane().setLayout(
-				new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
-		frame.getContentPane().add(inputPanel);
-		frame.getContentPane().add(advanceButton);
-		frame.getContentPane().add(prePanel);
-		frame.getContentPane().add(runPanel);
-		frame.getContentPane().add(progressPanel);
-		frame.getContentPane().add(dumpPanel);
-		frame.getContentPane().add(startDownPanel);
+				new GridLayout(1, 1, GRID_GAP, GRID_GAP));
+
+		frame.getContentPane().add(leftPanel);
+		frame.getContentPane().add(rightPanel);
 
 		frame.pack();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		*/
 
-        JPanel leftPanel = new JPanel();
-        JPanel rightPanel = new JPanel();
-        JButton dataInjectionBtn = new JButton();
-        leftPanel.add(inputPanel);
-        // // advanceButton.setPreferredSize(new Dimension(10, 10));
-        // // inputPanel.add(advanceButton);
-        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
-        leftPanel.add(advancePanel);
-        leftPanel.add(prePanel);
-        leftPanel.add(runPanel);
-        rightPanel.add(progressPanel);
-        rightPanel.add(dumpPanel);
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-
-        frame.getContentPane().setLayout(
-                new GridLayout(1, 1, GRID_GAP, GRID_GAP));
-
-        frame.getContentPane().add(leftPanel);
-        frame.getContentPane().add(rightPanel);
-
-        frame.pack();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        /** SET ALL ACTION LISTENER HERE */
-        setAllActionListener();
+		/** SET ALL ACTION LISTENER HERE */
+		setAllActionListener();
 	}
 
 	private void setAllActionListener() {
@@ -348,28 +352,33 @@ public class UI extends JPanel {
 			public void actionPerformed(ActionEvent event) {
 				algoName = (String) algoListBox.getSelectedItem();
 				if (algoName.equals("SVD")) {
-                    try {
-                        updateprogressArea("***************** Start Job ***************************\n");
-                        core.getProcessor().setWrongDataTypeStrategy((WrongDataTypeStrategy) dataHandlingBox.getSelectedItem());
-                        //core.svdMaster(inputFile.getCanonicalPath(),
-                        //       outputFolder.getCanonicalPath());
-                        updateprogressArea("input file set as: " + inputFile.getCanonicalPath() + "\n");
-                        updateprogressArea("output file path set as: " + outputFolder.getCanonicalPath() + "\n");
-                        Thread svdRunner = new Thread(new Runnable() {
-                            public void run() {
-                                try {
-                                    core.startRun(inputFile.getCanonicalPath(),
-                                            outputFolder.getCanonicalPath());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        svdRunner.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        onShowingAlert("Error", "An exception is thrown during process");
-                    }
+					try {
+						updateprogressArea("***************** Start Job ***************************\n");
+						core.getProcessor().setWrongDataTypeStrategy(
+								(WrongDataTypeStrategy) dataHandlingBox
+										.getSelectedItem());
+						// core.svdMaster(inputFile.getCanonicalPath(),
+						// outputFolder.getCanonicalPath());
+						updateprogressArea("input file set as: "
+								+ inputFile.getCanonicalPath() + "\n");
+						updateprogressArea("output file path set as: "
+								+ outputFolder.getCanonicalPath() + "\n");
+						Thread svdRunner = new Thread(new Runnable() {
+							public void run() {
+								try {
+									core.startRun(inputFile.getCanonicalPath(),
+											outputFolder.getCanonicalPath());
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						svdRunner.start();
+					} catch (Exception e) {
+						e.printStackTrace();
+						onShowingAlert("Error",
+								"An exception is thrown during process");
+					}
 				}
 
 			}
@@ -404,15 +413,20 @@ public class UI extends JPanel {
 			}
 		});
 
-		Visualize.addActionListener(new ActionListener() {
+		loadDataBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-                System.out.println("visualized listener");
+				/**
+				 * load data here!
+				 * 
+				 */
+				if ((String) visuListBox.getSelectedItem() == "None")
+					return;
+				System.out.println("Visualization Initiating...\n...\n...");
 
 				SampleVisualizationProcessor sampleVisualizationProcessor = new SampleVisualizationProcessor();
 				sampleVisualizationProcessor.visualize((String) visuListBox
 						.getSelectedItem());
-
 
 			}
 		});
@@ -433,29 +447,28 @@ public class UI extends JPanel {
 		core.registerDataStrategy(new EmptyWrongDataStrategy());
 		core.registerDataStrategy(new DoubleColumnInterpolationStrategy(0.0));
 		core.registerDataStrategy(new HotDeckStrategy(0.0));
-        try {
-            core.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        UI gui = new UI(core);
+		try {
+			core.init();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		UI gui = new UI(core);
 		core.setUI(gui);
 		gui.show();
 	}
 
 	public static void main(String[] args) {
-        /*
-		try {
-
-			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-			//
-			// .setLookAndFeel("com.sun.java.swing.plaf.nimbus.SynthLookAndFeel");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        */
+		/*
+		 * try {
+		 * 
+		 * //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		 * UIManager
+		 * .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		 * // //
+		 * .setLookAndFeel("com.sun.java.swing.plaf.nimbus.SynthLookAndFeel");
+		 * 
+		 * } catch (Exception e) { e.printStackTrace(); }
+		 */
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
