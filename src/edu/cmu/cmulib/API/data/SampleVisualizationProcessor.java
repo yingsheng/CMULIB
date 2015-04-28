@@ -29,9 +29,10 @@ public class SampleVisualizationProcessor {
 	}
 
 	public void visualize() {
-		String commands = "matlab -nodesktop -nosplash -r data_visualization('"
-				+ visualizationMethod + "','" + sampleDataFileName + "')";
+		String commands = "/Applications/MATLAB_R2014a.app/bin/matlab -nodesktop -nosplash -r \"data_visualization('"
+				+ visualizationMethod + "','" + sampleDataFileName + "')\"";
 		System.out.println(commands);
+
 		try {
 			Process process = Runtime.getRuntime().exec(commands);
 		} catch (IOException e) {

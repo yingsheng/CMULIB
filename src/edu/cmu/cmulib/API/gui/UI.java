@@ -1,4 +1,4 @@
-package edu.cmu.cmulib.gui;
+package edu.cmu.cmulib.API.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -29,6 +29,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import edu.cmu.cmulib.Master_forUI;
 import org.netlib.util.booleanW;
 
 import edu.cmu.cmulib.API.data.DoubleColumnInterpolationStrategy;
@@ -36,7 +37,7 @@ import edu.cmu.cmulib.API.data.EmptyWrongDataStrategy;
 import edu.cmu.cmulib.API.data.HotDeckStrategy;
 import edu.cmu.cmulib.API.data.SampleVisualizationProcessor;
 import edu.cmu.cmulib.API.data.WrongDataTypeStrategy;
-import edu.cmu.cmulib.SVD.Calculate1svd;
+import edu.cmu.cmulib.API.SVD.Calculate1svd;
 
 public class UI extends JPanel {
 
@@ -89,17 +90,17 @@ public class UI extends JPanel {
 	private final JFileChooser downloadFolderFC = new JFileChooser();
 	private JPanel prePanel = new JPanel();
 
-	private File inputFile;
-	private File outputFolder;
+	public File inputFile;
+	public File outputFolder;
 	private File downloadToFolder;
 	private String algoName = "SVD";
 	private String fileToDownloadOption;
 
-	private final Calculate1svd core;
+	private final Master_forUI core;
 
 	// private final Model model
 
-	public UI(Calculate1svd inputcore) {
+	public UI(Master_forUI inputcore) {
 		// model = inputModel;
 		core = inputcore;
 
@@ -313,17 +314,28 @@ public class UI extends JPanel {
 			public void actionPerformed(ActionEvent event) {
 				algoName = (String) algoListBox.getSelectedItem();
 				if (algoName.equals("SVD")) {
-					try {
-						core.getProcessor().setWrongDataTypeStrategy(
-								(WrongDataTypeStrategy) dataHandlingBox
-										.getSelectedItem());
-						core.svdMaster(inputFile.getCanonicalPath(),
-								outputFolder.getCanonicalPath());
-					} catch (Exception e) {
-						onShowingAlert("Error",
-								"An exception is thrown during process");
-						;
-					}
+                    try {
+                        updateprogressArea("***************** Start Job ***************************\n");
+                        core.getProcessor().setWrongDataTypeStrategy((WrongDataTypeStrategy) dataHandlingBox.getSelectedItem());
+                        //core.svdMaster(inputFile.getCanonicalPath(),
+                        //       outputFolder.getCanonicalPath());
+                        updateprogressArea("input file set as: " + inputFile.getCanonicalPath() + "\n");
+                        updateprogressArea("output file path set as: " + outputFolder.getCanonicalPath() + "\n");
+                        Thread svdRunner = new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    core.startRun(inputFile.getCanonicalPath(),
+                                            outputFolder.getCanonicalPath());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        svdRunner.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        onShowingAlert("Error", "An exception is thrown during process");
+                    }
 				}
 
 			}
@@ -361,9 +373,12 @@ public class UI extends JPanel {
 		Visualize.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+                System.out.println("visualized listener");
+                /*
 				SampleVisualizationProcessor sampleVisualizationProcessor = new SampleVisualizationProcessor();
 				sampleVisualizationProcessor.visualize((String) visuListBox
 						.getSelectedItem());
+						*/
 
 			}
 		});
@@ -380,7 +395,7 @@ public class UI extends JPanel {
 
 	/** create GUI and show it */
 	public static void createAndShowGUI() {
-		Calculate1svd core = new Calculate1svd();
+		Master_forUI core = new Master_forUI();
 		core.registerDataStrategy(new EmptyWrongDataStrategy());
 		core.registerDataStrategy(new DoubleColumnInterpolationStrategy(0.0));
 		core.registerDataStrategy(new HotDeckStrategy(0.0));
@@ -390,18 +405,18 @@ public class UI extends JPanel {
 	}
 
 	public static void main(String[] args) {
+        /*
 		try {
 
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			// UIManager
-			// .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 			//
 			// .setLookAndFeel("com.sun.java.swing.plaf.nimbus.SynthLookAndFeel");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+        */
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
