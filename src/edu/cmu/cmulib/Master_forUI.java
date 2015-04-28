@@ -177,6 +177,10 @@ public class Master_forUI {
         Path inPath = Paths.get(input);
         String dir = inPath.getParent().toString();
         String fileName = inPath.getFileName().toString();
+        generateBinDataWithErrorHandler(dir, fileName);
+
+        dir = "./resource";
+        fileName = "/BinData";
 
         try {
             FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, dir);
