@@ -46,7 +46,7 @@ public class KNNDataImputationProcessor extends DataImputationProcessor {
 			}
 		};
 
-		PriorityQueue<Pair> heap = new PriorityQueue<>(N, comparator);
+		PriorityQueue<Pair> heap = new PriorityQueue<Pair>(N, comparator);
 
 		// find k nearest neighbor i.e. the k smallest distance
 		// hence this is a max heap

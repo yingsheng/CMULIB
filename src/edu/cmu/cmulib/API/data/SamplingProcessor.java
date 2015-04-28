@@ -15,8 +15,8 @@ public class SamplingProcessor {
 
 	public SamplingProcessor(double prob) {
 		assert (prob > 0 && prob <= 1);
-		sampleInstances = new ArrayList<>();
-		numericalData = new ArrayList<>();
+		sampleInstances = new ArrayList<String[]>();
+		numericalData = new ArrayList<double[]>();
 	}
 
 	public ArrayList<String[]> getSampleInstances() {

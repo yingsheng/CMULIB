@@ -38,7 +38,7 @@ import edu.cmu.cmulib.API.data.SampleVisualizationProcessor;
 import edu.cmu.cmulib.API.data.WrongDataTypeStrategy;
 import edu.cmu.cmulib.SVD.Calculate1svd;
 
-public class UI extends JPanel {
+public class UI_Copy extends JPanel {
 
 	private static final long serialVersionUID = -3568891808859925700L;
 	private static final String[] ALGOS_NAME = { "SVD", "Decision Tree" };
