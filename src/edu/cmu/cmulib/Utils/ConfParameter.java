@@ -12,5 +12,7 @@ public class ConfParameter {
     public FileSystemType fsType;
     public String fileDir;
     public String fileName;
+    public int columnNum;
+    public int rowNum;
 }
 

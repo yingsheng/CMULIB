@@ -29,8 +29,11 @@ public class SampleVisualizationProcessor {
 	}
 
 	public void visualize() {
-		String commands = "/Applications/MATLAB_R2014a.app/bin/matlab -nodesktop -nosplash -r \"data_visualization('"
-				+ visualizationMethod + "','" + sampleDataFileName + "')\"";
+        //-nodesktop -nosplash
+		//String commands = "/Applications/MATLAB_R2014a.app/bin/matlab -r \"data_visualization('"
+		//		+ visualizationMethod + "','" + sampleDataFileName + "')\"";
+        String commands = "/Applications/MATLAB_R2014a.app/bin/matlab -nodesktop -nosplash -r data_visualization('"
+        		+ visualizationMethod + "','" + sampleDataFileName + "')";
 		System.out.println(commands);
 
 		try {
@@ -38,6 +41,8 @@ public class SampleVisualizationProcessor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+        System.out.println("Done!");
 	}
 
 	static public void main(String args[]) {

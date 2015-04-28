@@ -9,7 +9,17 @@ import java.io.IOException;
 /**
  * Created by yiranfei on 4/18/15.
  */
-public class TestJsonGenerator {
+public class JsonGenerator {
+    public JSONObject obj = new JSONObject();
+    public void put(String key, String value) {
+        obj.put(key, value);
+    }
+    public void put(String key, Integer value) {
+        obj.put(key, value);
+    }
+    public String getJsonString() {
+        return obj.toJSONString();
+    }
     public static void main(String[] argv) throws IOException {
         JSONObject obj = new JSONObject();
         obj.put("masterAddress", "localhost");

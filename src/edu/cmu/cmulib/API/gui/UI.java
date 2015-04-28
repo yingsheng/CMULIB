@@ -49,7 +49,7 @@ public class UI extends JPanel {
 	private static final int GRID_GAP = 10;
 	private static final int BORDER_LEN = 10;
 	private static final int FIELD_LEN = 30;
-	private static final int INPUT_ITEM_NUM = 4;
+	private static final int INPUT_ITEM_NUM = 3;
 	private static final int DUMP_ITEM_NUM = 2;
 	private static final int TEXT_AREA_WIDTH = 50;
 	private static final int TEXT_AREA_HEIGHT = 20;
@@ -83,6 +83,7 @@ public class UI extends JPanel {
 	private final JTextField dumpPathField = new JTextField(FIELD_LEN);
 	private final JButton browse3Btn = new JButton("Browse");
 	private final JButton startDumpBtn = new JButton("Start Downloading");
+
 
 	/** various file path string */
 	private final JFileChooser inputPathFC = new JFileChooser();
@@ -184,6 +185,13 @@ public class UI extends JPanel {
 		runPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
 				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
+        /** advance panel */
+        JPanel advancePanel = new JPanel();
+        advancePanel.add(advanceButton);
+        advanceButton.setPreferredSize(new Dimension(500, 50));
+        advancePanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
+                5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
+
 		/** progress panel */
 		JPanel progressPanel = new JPanel();
 		JScrollPane scrollPane = new JScrollPane(progressArea);
@@ -229,6 +237,7 @@ public class UI extends JPanel {
 				BORDER_LEN, 5 * BORDER_LEN, BORDER_LEN));
 
 		/** put together */
+        /*
 		prePanel.setVisible(false);
 		frame.getContentPane().setLayout(
 				new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -242,9 +251,34 @@ public class UI extends JPanel {
 
 		frame.pack();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		*/
 
-		/** SET ALL ACTION LISTENER HERE */
-		setAllActionListener();
+        JPanel leftPanel = new JPanel();
+        JPanel rightPanel = new JPanel();
+        JButton dataInjectionBtn = new JButton();
+        leftPanel.add(inputPanel);
+        // // advanceButton.setPreferredSize(new Dimension(10, 10));
+        // // inputPanel.add(advanceButton);
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
+        leftPanel.add(advancePanel);
+        leftPanel.add(prePanel);
+        leftPanel.add(runPanel);
+        rightPanel.add(progressPanel);
+        rightPanel.add(dumpPanel);
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+
+        frame.getContentPane().setLayout(
+                new GridLayout(1, 1, GRID_GAP, GRID_GAP));
+
+        frame.getContentPane().add(leftPanel);
+        frame.getContentPane().add(rightPanel);
+
+        frame.pack();
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        /** SET ALL ACTION LISTENER HERE */
+        setAllActionListener();
 	}
 
 	private void setAllActionListener() {
@@ -374,11 +408,11 @@ public class UI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
                 System.out.println("visualized listener");
-                /*
+
 				SampleVisualizationProcessor sampleVisualizationProcessor = new SampleVisualizationProcessor();
 				sampleVisualizationProcessor.visualize((String) visuListBox
 						.getSelectedItem());
-						*/
+
 
 			}
 		});
@@ -399,7 +433,12 @@ public class UI extends JPanel {
 		core.registerDataStrategy(new EmptyWrongDataStrategy());
 		core.registerDataStrategy(new DoubleColumnInterpolationStrategy(0.0));
 		core.registerDataStrategy(new HotDeckStrategy(0.0));
-		UI gui = new UI(core);
+        try {
+            core.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        UI gui = new UI(core);
 		core.setUI(gui);
 		gui.show();
 	}

@@ -10,14 +10,13 @@ import edu.cmu.cmulib.CoolMatrixUtility.decomp.svd.Master_Spliter;
 import edu.cmu.cmulib.DistributedSVD;
 import edu.cmu.cmulib.FileSystemAdaptor.*;
 import edu.cmu.cmulib.MasterMiddleWare;
+import edu.cmu.cmulib.Utils.BinaryDataGenerator;
 import edu.cmu.cmulib.Utils.ConfParameter;
+import edu.cmu.cmulib.Utils.JsonGenerator;
 import edu.cmu.cmulib.Utils.JsonParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.File;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
@@ -38,6 +37,7 @@ public class Master_forUI {
     public FileSystemType mFsType;
     public double[] test;
 
+    public int columnNum, rowNum;
     private UI gui;
     DataFileProcesser processor = new DataFileProcesser();
 
@@ -60,6 +60,7 @@ public class Master_forUI {
     public void registerDataStrategy(WrongDataTypeStrategy stra) {
         this.wrongDataStrategies.add(stra);
     }
+
 
     public void setUI(UI inputUI){
         gui = inputUI;
@@ -166,7 +167,15 @@ public class Master_forUI {
     }
 
     public void startRun(String input, String output) {
-        double[] test = new double[1000 * 1000];
+        try {
+            generateBinDataWithErrorHandler(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int rows = this.rowNum;
+        int cols = this.columnNum;
+        double[] test = new double[rows * cols];
         LinkedList<Double[]> mList = new LinkedList<Double[]>();
 
         //String dir = "tachyon://localhost:19998";
@@ -174,19 +183,17 @@ public class Master_forUI {
 
         //String dir = "./resource";
         // String fileName = "/BinData";
-        Path inPath = Paths.get(input);
-        String dir = inPath.getParent().toString();
-        String fileName = inPath.getFileName().toString();
+
         //generateBinDataWithErrorHandler(dir, fileName);
 
-        dir = "./resource";
-        fileName = "/BinData";
+        //dir = "./resource";
+        //fileName = "/BinData";
 
         try {
-            FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, dir);
+            FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, this.dir);
             DataHandler t = DataHandlerFactory.BuildDataHandler(FileSystemType.LOCAL);
-            test = t.getDataInDouble(fs.getFsHandler(), fileName, 1000 * 1000);
-            System.out.println(test[1000 * 1000 - 1]);
+            test = t.getDataInDouble(fs.getFsHandler(), this.fileName, rows * cols);
+            System.out.println(test[rows * cols - 1]);
         } catch (IOException e) {
         }
 
@@ -195,7 +202,7 @@ public class Master_forUI {
         MasterMiddleWare commu = new MasterMiddleWare(port);
         commu.startMaster();
         */
-        DistributedSVD_forUI svd = new DistributedSVD_forUI(commu, this.slaveNum, test, gui);
+        DistributedSVD_forUI svd = new DistributedSVD_forUI(commu, this.slaveNum, test, gui, this.rowNum);
 
 
         //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -212,6 +219,56 @@ public class Master_forUI {
         gui.updateprogressArea(this.slaveNum + " slaves found! Start calculating...\n");
         Thread t = new Thread(svd);
         t.start();
+    }
+
+    public void generateBinDataWithErrorHandler(String input) throws Exception {
+        String[][] stringMat = processor.processingData(input, ",", "dataType");
+        this.rowNum = stringMat.length;
+        this.columnNum = stringMat[0].length;
+        String tmpFile = "./resource/tmpColumnWiseData.txt"; //store a 1-column format of the matrix
+
+        Path inPath = Paths.get(input);
+        this.dir = inPath.getParent().toString();
+        this.fileName = inPath.getFileName().toString() + ".bin";
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(tmpFile)));
+        for (int j = 0; j < this.columnNum; j ++) {
+            for (int i = 0; i < this.rowNum; i ++) {
+                writer.write(stringMat[i][j] + "\n");
+            }
+        }
+        writer.close();
+        BinaryDataGenerator g = new BinaryDataGenerator();
+        try {
+            double[] data = g.read(tmpFile);
+            g.write(data, "./resource/BinData.bin"); //hardcoded as "./resource/BinData.bin"
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File f = new File(tmpFile);
+        f.delete();
+        // start generate config file
+
+        JsonGenerator generator = new JsonGenerator();
+        initConfigFile(generator);
+        generator.put("columnNum", new Integer(this.columnNum));
+        generator.put("rowNum", new Integer(this.rowNum));
+        generator.put("fileName", this.fileName);
+        generator.put("fileDir", this.dir);
+
+        FileWriter file = new FileWriter("./resource/conf.json");
+        file.write(generator.getJsonString());
+        file.flush();
+        file.close();
+        return;
+    }
+
+    public void initConfigFile(JsonGenerator generator) {
+        // all the default settings
+        generator.put("masterAddress", "localhost");
+        generator.put("masterPort", new Integer(8888));
+        generator.put("minSlaveNum", new Integer(1));
+        generator.put("fsType", "local");
     }
     public static void printArray(double[] arr) {
         for (double i : arr)

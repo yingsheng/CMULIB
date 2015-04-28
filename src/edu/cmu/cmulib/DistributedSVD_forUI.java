@@ -26,7 +26,8 @@ public class DistributedSVD_forUI implements Runnable {
     String output;
     boolean isFinished;
     private UI gui;
-    public DistributedSVD_forUI(MasterMiddleWare middleWare, int slaveNum, double[] test, UI gui) {
+    private int rows, cols;
+    public DistributedSVD_forUI(MasterMiddleWare middleWare, int slaveNum, double[] test, UI gui, int rows) {
         commu = middleWare;
         this.test = test;
         this.slaveNum = slaveNum;
@@ -34,6 +35,9 @@ public class DistributedSVD_forUI implements Runnable {
         this.output = "";
         this.isFinished = false;
         this.gui = gui;
+        this.rows = rows;
+        this.cols = test.length / this.rows;
+        System.out.println("testLength: " + test.length + " row " + this.rows + " col:" + this.cols);
     }
 
     @Override
@@ -42,8 +46,8 @@ public class DistributedSVD_forUI implements Runnable {
         int q = 0;
         output = "";
 
-        int rows = 1000;
-        int cols = 1000;
+        int rows = this.rows;
+        int cols = this.cols;
         Mat score = new Mat(rows, cols, test);
         Tag tag;
         Mat Like, slaveL;

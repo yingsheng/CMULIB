@@ -12,10 +12,12 @@ import java.util.LinkedList;
 import edu.cmu.cmulib.FileSystemAdaptor.*;
 import edu.cmu.cmulib.Communication.CommonPacket;
 import edu.cmu.cmulib.Utils.ConfParameter;
+import edu.cmu.cmulib.Utils.JsonParser;
 
 public class Slave {
 	public int SlaveId;
 	public double workspan = Double.MAX_VALUE;
+    public static ConfParameter cf;
     String address = "localhost";
     int port = 8888;
     String dir = "./resource";
@@ -96,12 +98,23 @@ public class Slave {
         }
     }
 
+    public static void initConf() {
+        JsonParser parser = new JsonParser();
+        try {
+            cf = parser.parseFile("./resource/conf.json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 	public static void main (String[] args) throws IOException {
-        
+
+
+        initConf();
         // initialize original matrix
-        double[] test = new double[1000*1000];
-		int rows = 1000;
-		int cols = 1000;
+
+        double[] test = new double[cf.rowNum*cf.columnNum];
+		int rows = cf.rowNum;
+		int cols = cf.columnNum;
         String address = args[0];
         int port = Integer.parseInt(args[1]);
         int q = 0;
@@ -110,12 +123,14 @@ public class Slave {
         //String fileName = "/BinData";
         String dir = "./resource";
         String fileName = "/BinData";
+        dir = cf.fileDir;
+        fileName = cf.fileName;
 
         try {
             FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, dir);
             DataHandler t = DataHandlerFactory.BuildDataHandler(FileSystemType.LOCAL);
-            test = t.getDataInDouble(fs.getFsHandler(), fileName, 1000 * 1000);
-            System.out.println(test[1000*1000-1]);
+            test = t.getDataInDouble(fs.getFsHandler(), fileName, rows * cols);
+            System.out.println(test[rows * cols - 1]);
         } catch (IOException e) {
         }
     

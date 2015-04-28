@@ -29,7 +29,10 @@ public class JsonParser {
         conf.masterPort = ((Long) jsonObject.get("masterPort")).intValue();
         conf.minSlaveNum = ((Long) jsonObject.get("minSlaveNum")).intValue();
         conf.fileDir = (String) jsonObject.get("fileDir");
+        //conf.fsType = (FileSystemType) jsonObject.get("fsType");
         conf.fileName = (String) jsonObject.get("fileName");
+        conf.columnNum = ((Long) jsonObject.get("columnNum")).intValue();
+        conf.rowNum = ((Long) jsonObject.get("rowNum")).intValue();
 
         String fs = (String) jsonObject.get("fsType");
         // In order to support jdk 1.6, use if-else instead of switch (String).
@@ -77,4 +80,5 @@ public class JsonParser {
         System.out.println(cf.fileDir);
         System.out.println(cf.fileName);
     }
+
 }

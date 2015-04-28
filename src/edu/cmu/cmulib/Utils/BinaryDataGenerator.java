@@ -14,6 +14,14 @@ public class BinaryDataGenerator {
     out.close();
   }
 
+    public void write(double data[], String filePath) throws IOException {
+        DataOutputStream out = new DataOutputStream(new FileOutputStream("./resource/BinData"));
+        for (int i = 0; i < 1000 * 1000; i++) {
+            out.writeDouble(data[i]);
+        }
+        out.close();
+    }
+
   public void readtest(String filePath) throws IOException {
     DataInputStream in = new DataInputStream(new FileInputStream(filePath));
     double[] test = new double[1000*1000];
