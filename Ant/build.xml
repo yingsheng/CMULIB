@@ -3,15 +3,15 @@
     <taskdef name="bundleapp"
              classname="com.oracle.appbundler.AppBundlerTask"
              classpath="lib/appbundler-1.0.jar" />
-    <target name="bundle-csf2014">
-        <bundleapp outputdirectory="release"
-                   name="csf2014"
-                   displayname="csf2014"
+    <target name="CMULib">
+        <bundleapp outputdirectory="out"
+                   name="CMULib"
+                   displayname="CMULib"
                    identifier="csf2014.main"
                    shortversion="1.0"
                    applicationCategory="public.app-category.developer-tools"
-                   mainclassname="csf">
-            <classpath file="csf-java.jar"/>
+                   mainclassname="edu.cmu.cmulib.API.gui.UI">
+            <classpath file="CMULibDemo.jar"/>
             <option value="-Dapple.laf.useScreenMenuBar=true"/>
         </bundleapp>
     </target>

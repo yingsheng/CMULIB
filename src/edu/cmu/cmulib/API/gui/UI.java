@@ -1,5 +1,6 @@
 package edu.cmu.cmulib.API.gui;
 
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -186,7 +187,7 @@ public class UI extends JPanel {
 		prePanel.add(new JLabel("Number of Slave Nodes"));
 		prePanel.add(numberOfSalveNodes);
 
-		prePanel.setLayout(new GridLayout(3, 1, 3, GRID_GAP));
+		prePanel.setLayout(new GridLayout(5, 1, 3, GRID_GAP));
 		prePanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
                 5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
@@ -238,8 +239,12 @@ public class UI extends JPanel {
                 GRID_GAP));
 		pathFieldPanel.add(fileListBox);
 		JPanel downtoBrowse = new JPanel();
+
+        downtoBrowse.setLayout(new BoxLayout(downtoBrowse, BoxLayout.X_AXIS));
 		downtoBrowse.add(dumpPathField);
+        dumpPathField.setMaximumSize(dumpPathField.getPreferredSize());
 		downtoBrowse.add(browse3Btn);
+        downtoBrowse.setAlignmentY(Component.CENTER_ALIGNMENT);
 		pathFieldPanel.add(downtoBrowse);
 
 		dumpPanel.setLayout(new BorderLayout());
@@ -268,9 +273,10 @@ public class UI extends JPanel {
 		leftPanel.add(runPanel);
 		rightPanel.add(progressPanel);
 		rightPanel.add(dumpPanel);
+        rightPanel.add(startDownPanel);
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-
+        prePanel.setVisible(false);
 		frame.getContentPane().setLayout(
 				new GridLayout(1, 1, GRID_GAP, GRID_GAP));
 

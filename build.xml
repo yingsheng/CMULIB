@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="CMULibDemo" default="default" basedir="./">
+<project name="CMULibDemo" default="edu.cmu.cmulib.API.gui.UI" basedir="../">
     <taskdef name="bundleapp"
              classname="com.oracle.appbundler.AppBundlerTask"
              classpath="lib/appbundler-1.0.jar" />
