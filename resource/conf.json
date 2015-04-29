@@ -1,1 +1,1 @@
-{"masterPort":8888,"fsType":"local","minSlaveNum":1,"fileDir":".\/resource","masterAddress":"localhost","fileName":"\/BinData1","columnNum":1000,"rowNum":1000}
+{"masterAddress":"localhost","masterPort":8888,"fileName":"\/BinData1","columnNum":50,"rowNum":1000,"fileDir":".\/resource","minSlaveNum":1,"fsType":"local"}

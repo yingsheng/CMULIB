@@ -1,17 +1,19 @@
 <?xml version="1.0"?>
-<project name="CMULibDemo" default="default" basedir="./">
+<project name="CMULibDemo"  basedir="./">
+    <property environment="env"/>
     <taskdef name="bundleapp"
              classname="com.oracle.appbundler.AppBundlerTask"
-             classpath="lib/appbundler-1.0.jar" />
+             classpath="/Users/yingsheng/git/CMULibDemo/lib/appbundler-1.0.jar" />
     <target name="CMULib">
-        <bundleapp outputdirectory="out"
+        <bundleapp outputdirectory="/Users/yingsheng/git/CMULibDemo/out"
                    name="CMULib"
                    displayname="CMULib"
                    identifier="csf2014.main"
                    shortversion="1.0"
+                   icon="/Users/yingsheng/git/CMULibDemo/Icon.icns"
                    applicationCategory="public.app-category.developer-tools"
                    mainclassname="edu.cmu.cmulib.API.gui.UI">
-            <classpath file="Ant/CMULibDemo.jar"/>
+            <classpath file="/Users/yingsheng/git/CMULibDemo/out/artifacts/CMULibDemo_jar/CMULibDemo.jar"/>
             <option value="-Dapple.laf.useScreenMenuBar=true"/>
         </bundleapp>
     </target>

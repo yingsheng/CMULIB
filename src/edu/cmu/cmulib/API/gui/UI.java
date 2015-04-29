@@ -445,7 +445,7 @@ public class UI extends JPanel {
 								.getSelectedItem());
 				try {
 					core.generateBinDataWithErrorHandler(inputFile
-							.getCanonicalPath());
+							.getCanonicalPath(), outputFolder.getCanonicalPath());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -454,8 +454,13 @@ public class UI extends JPanel {
 				System.out.println("Visualization Initiating...\n...\n...");
 
 				SampleVisualizationProcessor sampleVisualizationProcessor = new SampleVisualizationProcessor();
-				sampleVisualizationProcessor.setSampleDataFileName("");
-				sampleVisualizationProcessor.visualize((String) visuListBox
+                try {
+                    sampleVisualizationProcessor.setSampleDataFileName(outputFolder.getCanonicalPath()
+                            + "/resource/sampleData.txt");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                sampleVisualizationProcessor.visualize((String) visuListBox
 						.getSelectedItem());
 
 			}

@@ -124,12 +124,16 @@ public class DataFileProcesser {
 						.handleWrongNumElementInaRow(tokens, numOfColumns, line);
 			}
 
-			for (int i = 0; i < tokens.length; i++) {
+			for (int i = 0; i < numOfColumns; i++) {
 				matrix[numRowsSeen][i] = tokens[i];
 			}
-
+            StringBuffer tmp = new StringBuffer();
+            for (int i = 0; i < numOfColumns - 1; i ++) {
+                tmp.append(matrix[numRowsSeen][i] + ",");
+            }
+            tmp.append(matrix[numRowsSeen][numOfColumns - 1]);
 			if (Math.random() < samplingRate) {
-				bw.write(line);
+				bw.write(tmp.toString() + "\n");
 			}
 
 			line = br.readLine();

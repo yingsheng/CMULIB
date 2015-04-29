@@ -168,7 +168,7 @@ public class Master_forUI {
 	public void startRun(String input, String output) {
 
 		System.out.println(gui.numberOfSalveNodes.getText());
-		this.slaveNum = 2;// Integer.parseInt(gui.numberOfSalveNodes.getName());
+		this.slaveNum = Integer.parseInt(gui.numberOfSalveNodes.getText());
 		int rows = this.rowNum;
 		int cols = this.columnNum;
 		double[] test = new double[rows * cols];
@@ -207,15 +207,15 @@ public class Master_forUI {
 		t.start();
 	}
 
-	public void generateBinDataWithErrorHandler(String input) throws Exception {
+	public void generateBinDataWithErrorHandler(String input, String output) throws Exception {
 		gui.updateprogressArea("Start loading data....\n");
 		gui.updateprogressArea("Input file found: " + input + "\n");
 
 		String[][] stringMat = processor.processingData(input, ",", "dataType",
-				gui.getSamplingRate(), "./resource/sampleData.txt");
+				gui.getSamplingRate(), output + "/resource/sampleData.txt");
 		this.rowNum = stringMat.length;
 		this.columnNum = stringMat[0].length;
-		String tmpFile = "./resource/tmpColumnWiseData.txt"; // store a 1-column
+		String tmpFile = output + "/resource/tmpColumnWiseData.txt"; // store a 1-column
 																// format of the
 																// matrix
 
@@ -235,7 +235,7 @@ public class Master_forUI {
 		BinaryDataGenerator g = new BinaryDataGenerator();
 		try {
 			double[] data = g.read(tmpFile);
-			g.write(data, this.dir + this.fileName); // hardcoded as
+			g.write(data, output + "/resource/"+ this.fileName); // hardcoded as
 														// "./resource/BinData.bin"
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -251,7 +251,7 @@ public class Master_forUI {
 		generator.put("fileName", this.fileName);
 		generator.put("fileDir", this.dir);
 
-		FileWriter file = new FileWriter("./resource/conf.json");
+		FileWriter file = new FileWriter(output + "/resource/conf.json");
 		file.write(generator.getJsonString());
 		file.flush();
 		file.close();

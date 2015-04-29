@@ -94,7 +94,7 @@ public class DataAPI {
             String srcDataFile, String delimiter, String dataType) {
 
         try {
-            String[][] tokens = this.fileProcesser.processingData(srcDataFile, delimiter, dataType);
+            //String[][] tokens = this.fileProcesser.processingData(srcDataFile, delimiter, dataType);
             int numSlaves = 2;
             return true;
             //return (Master.acceptData(numSlaves, tokens, numOfRows, numOfColumns, dataType));
