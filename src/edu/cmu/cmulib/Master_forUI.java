@@ -24,277 +24,286 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Master_forUI {
-    private Mat score;
-    private Mat Like;
-    private Master_Spliter split;
-    private Master_SVD svd;
-    public MasterMiddleWare commu;
-    private LinkedList<Double[]> mList;
-    public int slaveNum;
-    public String dir;
-    public String fileName;
-    public int port;
-    public FileSystemType mFsType;
-    public double[] test;
+	private Mat score;
+	private Mat Like;
+	private Master_Spliter split;
+	private Master_SVD svd;
+	public MasterMiddleWare commu;
+	private LinkedList<Double[]> mList;
+	public int slaveNum;
+	public String dir;
+	public String fileName;
+	public int port;
+	public FileSystemType mFsType;
+	public double[] test;
 
-    public int columnNum, rowNum;
-    private UI gui;
-    DataFileProcesser processor = new DataFileProcesser();
+	public int columnNum, rowNum;
+	private UI gui;
+	DataFileProcesser processor = new DataFileProcesser();
 
-    /**
-     * @return the processor
-     */
-    public DataFileProcesser getProcessor() {
-        return processor;
-    }
+	/**
+	 * @return the processor
+	 */
+	public DataFileProcesser getProcessor() {
+		return processor;
+	}
 
-    private final List<WrongDataTypeStrategy> wrongDataStrategies = new ArrayList<WrongDataTypeStrategy>();
+	private final List<WrongDataTypeStrategy> wrongDataStrategies = new ArrayList<WrongDataTypeStrategy>();
 
-    /**
-     * @return the wrongDataStrategies
-     */
-    public List<WrongDataTypeStrategy> getWrongDataStrategies() {
-        return wrongDataStrategies;
-    }
+	/**
+	 * @return the wrongDataStrategies
+	 */
+	public List<WrongDataTypeStrategy> getWrongDataStrategies() {
+		return wrongDataStrategies;
+	}
 
-    public void registerDataStrategy(WrongDataTypeStrategy stra) {
-        this.wrongDataStrategies.add(stra);
-    }
+	public void registerDataStrategy(WrongDataTypeStrategy stra) {
+		this.wrongDataStrategies.add(stra);
+	}
 
+	public void setUI(UI inputUI) {
+		gui = inputUI;
+	}
 
-    public void setUI(UI inputUI){
-        gui = inputUI;
-    }
+	public Master_forUI() {
+		// TODO: change slaveNum for demo
+		this.slaveNum = 2;
+		this.dir = "./resource";
+		this.fileName = "/BinData";
+		this.port = 8888;
+		this.mFsType = FileSystemType.LOCAL;
+	}
 
-    public Master_forUI() {
-        //TODO: change slaveNum for demo
-        this.slaveNum = 2;
-        this.dir = "./resource";
-        this.fileName = "/BinData";
-        this.port = 8888;
-        this.mFsType = FileSystemType.LOCAL;
-    }
+	public Master_forUI(ConfParameter conf) {
+		this.slaveNum = conf.minSlaveNum;
+		this.dir = conf.fileDir;
+		this.fileName = conf.fileName;
+		this.port = conf.masterPort;
+		this.mFsType = conf.fsType;
+	}
 
-    public Master_forUI(ConfParameter conf) {
-        this.slaveNum = conf.minSlaveNum;
-        this.dir = conf.fileDir;
-        this.fileName = conf.fileName;
-        this.port = conf.masterPort;
-        this.mFsType = conf.fsType;
-    }
+	public Master_forUI(String filePath) throws IOException, ParseException {
+		JsonParser jp = new JsonParser();
+		ConfParameter conf = jp.parseFile(filePath);
 
-    public Master_forUI(String filePath) throws IOException, ParseException {
-        JsonParser jp = new JsonParser();
-        ConfParameter conf = jp.parseFile(filePath);
+		this.slaveNum = conf.minSlaveNum;
+		this.dir = conf.fileDir;
+		this.fileName = conf.fileName;
+		this.port = conf.masterPort;
+		this.mFsType = conf.fsType;
+	}
 
-        this.slaveNum = conf.minSlaveNum;
-        this.dir = conf.fileDir;
-        this.fileName = conf.fileName;
-        this.port = conf.masterPort;
-        this.mFsType = conf.fsType;
-    }
+	public int getCurSlaveNum() {
+		return commu.slaveNum();
+	}
 
-    public int getCurSlaveNum() {
-        return commu.slaveNum();
-    }
+	public void setPara(String para) throws ParseException {
+		JsonParser jp = new JsonParser();
+		ConfParameter conf = jp.parseString(para);
 
-    public void setPara(String para) throws ParseException {
-        JsonParser jp = new JsonParser();
-        ConfParameter conf = jp.parseString(para);
+		this.slaveNum = conf.minSlaveNum;
+		this.dir = conf.fileDir;
+		this.fileName = conf.fileName;
+		this.port = conf.masterPort;
+		this.mFsType = conf.fsType;
+	}
 
-        this.slaveNum = conf.minSlaveNum;
-        this.dir = conf.fileDir;
-        this.fileName = conf.fileName;
-        this.port = conf.masterPort;
-        this.mFsType = conf.fsType;
-    }
+	public String sayHi() {
+		return "HHHHHHHHHHHHHH";
+	}
 
-    public String sayHi() {
-        return "HHHHHHHHHHHHHH";
-    }
+	public String init() throws IOException {
 
-    public String init() throws IOException {
+		/*
+		 * test = new double[1000 * 1000]; LinkedList<Double[]> mList = new
+		 * LinkedList<Double[]>();
+		 * 
+		 * 
+		 * //String dir = "tachyon://localhost:19998"; //String fileName =
+		 * "/BinData"; String dir = "./resource"; String fileName = "/BinData";
+		 * try { FileSystemInitializer fs =
+		 * FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL,
+		 * dir); DataHandler t =
+		 * DataHandlerFactory.BuildDataHandler(FileSystemType.LOCAL); test =
+		 * t.getDataInDouble(fs.getFsHandler(), fileName, 1000 * 1000);
+		 * System.out.println(test[1000 * 1000 - 1]); } catch (IOException e) {
+		 * }
+		 */
 
-        /*
-        test = new double[1000 * 1000];
-        LinkedList<Double[]> mList = new LinkedList<Double[]>();
+		this.commu = new MasterMiddleWare(this.port);
+		commu.startMaster();
 
+		return "success!";
+	}
 
-        //String dir = "tachyon://localhost:19998";
-        //String fileName = "/BinData";
-        String dir = "./resource";
-        String fileName = "/BinData";
-        try {
-            FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, dir);
-            DataHandler t = DataHandlerFactory.BuildDataHandler(FileSystemType.LOCAL);
-            test = t.getDataInDouble(fs.getFsHandler(), fileName, 1000 * 1000);
-            System.out.println(test[1000 * 1000 - 1]);
-        } catch (IOException e) {
-        }
-        */
+	public String execute() {
+		String output = "";
+		if (commu.slaveNum() < this.slaveNum) {
+			return "Not enoght slaves";
+		}
 
-        this.commu = new MasterMiddleWare(this.port);
-        commu.startMaster();
+		DistributedSVD svd_t = new DistributedSVD(commu, this.slaveNum, test);
+		Thread t = new Thread(svd_t);
+		t.run();
 
-        return "success!";
-    }
+		while (true) {
+			if (svd_t.isFinished)
+				break;
+		}
+		output = svd_t.getOutput();
+		gui.updateprogressArea(output);
+		return output;
+	}
 
-    public String execute() {
-        String output = "";
-        if (commu.slaveNum() < this.slaveNum) {
-            return "Not enoght slaves";
-        }
+	public boolean isCompleted() {
+		return svd.isPerformed(Like);
+	}
 
-        DistributedSVD svd_t = new DistributedSVD(commu,this.slaveNum,test);
-        Thread t = new Thread(svd_t);
-        t.run();
+	public String dispFinal() {
+		String finalout = "final  " + dispArray(this.Like.data); // final
+																	// information
+		return finalout;
+	}
 
-        while (true) {
-            if (svd_t.isFinished)
-                break;
-        }
-        output = svd_t.getOutput();
-        gui.updateprogressArea(output);
-        return output;
-    }
+	public void startRun(String input, String output) {
 
-    public boolean isCompleted() {
-        return svd.isPerformed(Like);
-    }
+		System.out.println(gui.numberOfSalveNodes.getText());
+		this.slaveNum = 2;// Integer.parseInt(gui.numberOfSalveNodes.getName());
+		int rows = this.rowNum;
+		int cols = this.columnNum;
+		double[] test = new double[rows * cols];
+		LinkedList<Double[]> mList = new LinkedList<Double[]>();
 
-    public String dispFinal() {
-        String finalout = "final  " + dispArray(this.Like.data);   // final information
-        return finalout;
-    }
+		// String dir = "./resource";
+		// String fileName = "/BinData";
 
-    public void startRun(String input, String output) {
+		try {
+			FileSystemInitializer fs = FileSystemAdaptorFactory
+					.BuildFileSystemAdaptor(FileSystemType.LOCAL, this.dir);
+			DataHandler t = DataHandlerFactory
+					.BuildDataHandler(FileSystemType.LOCAL);
+			test = t.getDataInDouble(fs.getFsHandler(), this.fileName, rows
+					* cols);
+			System.out.println(test[rows * cols - 1]);
+		} catch (IOException e) {
+		}
 
-        System.out.println(gui.numberOfSalveNodes.getText());
-        this.slaveNum = 2;//Integer.parseInt(gui.numberOfSalveNodes.getName());
-        int rows = this.rowNum;
-        int cols = this.columnNum;
-        double[] test = new double[rows * cols];
-        LinkedList<Double[]> mList = new LinkedList<Double[]>();
+		DistributedSVD_forUI svd = new DistributedSVD_forUI(commu,
+				this.slaveNum, test, gui, this.rowNum);
 
-        //String dir = "./resource";
-        // String fileName = "/BinData";
+		while (commu.slaveNum() < this.slaveNum) {
+			gui.updateprogressArea(commu.slaveNum()
+					+ "slave(s) is found, need " + this.slaveNum + " slaves\n");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
-        try {
-            FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, this.dir);
-            DataHandler t = DataHandlerFactory.BuildDataHandler(FileSystemType.LOCAL);
-            test = t.getDataInDouble(fs.getFsHandler(), this.fileName, rows * cols);
-            System.out.println(test[rows * cols - 1]);
-        } catch (IOException e) {
-        }
+		}
+		gui.updateprogressArea(this.slaveNum
+				+ " slaves found! Start calculating...\n");
+		Thread t = new Thread(svd);
+		t.start();
+	}
 
-        DistributedSVD_forUI svd = new DistributedSVD_forUI(commu, this.slaveNum, test, gui, this.rowNum);
+	public void generateBinDataWithErrorHandler(String input) throws Exception {
+		gui.updateprogressArea("Start loading data....\n");
+		gui.updateprogressArea("Input file found: " + input + "\n");
 
-        while (commu.slaveNum() < this.slaveNum) {
-            gui.updateprogressArea(commu.slaveNum() + "slave(s) is found, need "
-                    + this.slaveNum + " slaves\n");
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+		String[][] stringMat = processor.processingData(input, ",", "dataType",
+				gui.getSamplingRate(), "./resource/sampleData.txt");
+		this.rowNum = stringMat.length;
+		this.columnNum = stringMat[0].length;
+		String tmpFile = "./resource/tmpColumnWiseData.txt"; // store a 1-column
+																// format of the
+																// matrix
 
-        }
-        gui.updateprogressArea(this.slaveNum + " slaves found! Start calculating...\n");
-        Thread t = new Thread(svd);
-        t.start();
-    }
+		Path inPath = Paths.get(input);
+		this.dir = inPath.getParent().toString();
+		this.dir = "./resource";
+		this.fileName = "/BinData1";
 
-    public void generateBinDataWithErrorHandler(String input) throws Exception {
-        gui.updateprogressArea("Start loading data....\n");
-        gui.updateprogressArea("Input file found: " + input + "\n");
-        String[][] stringMat = processor.processingData(input, ",", "dataType");
-        this.rowNum = stringMat.length;
-        this.columnNum = stringMat[0].length;
-        String tmpFile = "./resource/tmpColumnWiseData.txt"; //store a 1-column format of the matrix
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
+				tmpFile)));
+		for (int j = 0; j < this.columnNum; j++) {
+			for (int i = 0; i < this.rowNum; i++) {
+				writer.write(stringMat[i][j] + "\n");
+			}
+		}
+		writer.close();
+		BinaryDataGenerator g = new BinaryDataGenerator();
+		try {
+			double[] data = g.read(tmpFile);
+			g.write(data, this.dir + this.fileName); // hardcoded as
+														// "./resource/BinData.bin"
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// File f = new File(tmpFile);
+		// f.delete();
+		// start generate config file
 
-        Path inPath = Paths.get(input);
-        this.dir = inPath.getParent().toString();
-        this.dir = "./resource";
-        this.fileName = "/BinData1";
+		JsonGenerator generator = new JsonGenerator();
+		initConfigFile(generator);
+		generator.put("columnNum", new Integer(this.columnNum));
+		generator.put("rowNum", new Integer(this.rowNum));
+		generator.put("fileName", this.fileName);
+		generator.put("fileDir", this.dir);
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(tmpFile)));
-        for (int j = 0; j < this.columnNum; j ++) {
-            for (int i = 0; i < this.rowNum; i ++) {
-                writer.write(stringMat[i][j] + "\n");
-            }
-        }
-        writer.close();
-        BinaryDataGenerator g = new BinaryDataGenerator();
-        try {
-            double[] data = g.read(tmpFile);
-            g.write(data, this.dir + this.fileName); //hardcoded as "./resource/BinData.bin"
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //File f = new File(tmpFile);
-        //f.delete();
-        // start generate config file
+		FileWriter file = new FileWriter("./resource/conf.json");
+		file.write(generator.getJsonString());
+		file.flush();
+		file.close();
+		gui.updateprogressArea("generating configuration file...\n");
+		gui.updateprogressArea("Data successfully loaded\n\n");
+		return;
+	}
 
-        JsonGenerator generator = new JsonGenerator();
-        initConfigFile(generator);
-        generator.put("columnNum", new Integer(this.columnNum));
-        generator.put("rowNum", new Integer(this.rowNum));
-        generator.put("fileName", this.fileName);
-        generator.put("fileDir", this.dir);
+	public void initConfigFile(JsonGenerator generator) {
+		// all the default settings
+		generator.put("masterAddress", "localhost");
+		generator.put("masterPort", new Integer(8888));
+		generator.put("minSlaveNum", new Integer(1));
+		generator.put("fsType", "local");
+	}
 
-        FileWriter file = new FileWriter("./resource/conf.json");
-        file.write(generator.getJsonString());
-        file.flush();
-        file.close();
-        gui.updateprogressArea("generating configuration file...\n");
-        gui.updateprogressArea("Data successfully loaded\n\n");
-        return;
-    }
+	public static void printArray(double[] arr) {
+		for (double i : arr)
+			System.out.print(i + " ");
+		System.out.println();
+	}
 
-    public void initConfigFile(JsonGenerator generator) {
-        // all the default settings
-        generator.put("masterAddress", "localhost");
-        generator.put("masterPort", new Integer(8888));
-        generator.put("minSlaveNum", new Integer(1));
-        generator.put("fsType", "local");
-    }
-    public static void printArray(double[] arr) {
-        for (double i : arr)
-            System.out.print(i + " ");
-        System.out.println();
-    }
+	private String dispArray(double[] arr) {
+		String s = "";
+		for (double i : arr)
+			s += i + " ";
+		s += "\n";
+		return s;
+	}
 
-    private String dispArray(double[] arr){
-        String s = "";
-        for(double i: arr)
-            s+= i + " ";
-        s+= "\n";
-        return s;
-    }
+	public static Mat getMat(LinkedList<Double[]> mList) {
+		Double[] temp = mList.peek();
+		double row = temp[0];
+		double col = temp[1];
+		double[] arr = new double[temp.length - 2];
+		for (int k = 0; k < arr.length; k++) {
+			arr[k] = temp[k + 2];
+		}
+		Mat mat = new Mat((int) row, (int) col, arr);
+		mList.remove();
+		return mat;
+	}
 
+	public static void sendMat(Mat mat, int id, MasterMiddleWare m) {
+		Double[] array = new Double[mat.data.length + 2];
+		array[0] = Double.valueOf(mat.rows);
+		array[1] = Double.valueOf(mat.cols);
 
-    public static Mat getMat(LinkedList<Double[]> mList) {
-        Double[] temp = mList.peek();
-        double row = temp[0];
-        double col = temp[1];
-        double[] arr = new double[temp.length - 2];
-        for (int k = 0; k < arr.length; k++) {
-            arr[k] = temp[k + 2];
-        }
-        Mat mat = new Mat((int) row, (int) col, arr);
-        mList.remove();
-        return mat;
-    }
+		for (int k = 0; k < mat.data.length; k++)
+			array[k + 2] = Double.valueOf(mat.data[k]);
+		CommonPacket packet = new CommonPacket(-1, array);
 
-    public static void sendMat(Mat mat, int id, MasterMiddleWare m) {
-        Double[] array = new Double[mat.data.length + 2];
-        array[0] = Double.valueOf(mat.rows);
-        array[1] = Double.valueOf(mat.cols);
-
-        for (int k = 0; k < mat.data.length; k++)
-            array[k + 2] = Double.valueOf(mat.data[k]);
-        CommonPacket packet = new CommonPacket(-1, array);
-
-        m.sendPacket(id, packet);
-    }
+		m.sendPacket(id, packet);
+	}
 }

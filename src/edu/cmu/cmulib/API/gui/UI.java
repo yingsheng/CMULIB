@@ -77,6 +77,10 @@ public class UI extends JPanel {
 	private final JButton Visualize = new JButton("Visualize");
 	private final JButton Sampling = new JButton("Sample");
 	private final JTextArea samplingRate = new JTextArea("1");
+	public double getSamplingRate() {
+		return (double)Double.parseDouble(samplingRate.getText());
+	}
+
 	public final JTextArea numberOfSalveNodes = new JTextArea("1");
 	private final JComboBox visuListBox = new JComboBox(VISUA_STRATEGY);
 	private final JComboBox sampListBox = new JComboBox(SAMPLING_STRATEGY);
