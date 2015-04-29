@@ -125,6 +125,7 @@ public class Slave {
         String fileName = "/BinData";
         dir = cf.fileDir;
         fileName = cf.fileName;
+        System.out.println("slave fileName:" + dir + fileName);
 
         try {
             FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, dir);

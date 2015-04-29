@@ -132,6 +132,7 @@ public class Master_forUI {
         } catch (IOException e) {
         }
         */
+
         this.commu = new MasterMiddleWare(this.port);
         commu.startMaster();
 
@@ -167,27 +168,16 @@ public class Master_forUI {
     }
 
     public void startRun(String input, String output) {
-        try {
-            generateBinDataWithErrorHandler(input);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
+        System.out.println(gui.numberOfSalveNodes.getText());
+        this.slaveNum = 2;//Integer.parseInt(gui.numberOfSalveNodes.getName());
         int rows = this.rowNum;
         int cols = this.columnNum;
         double[] test = new double[rows * cols];
         LinkedList<Double[]> mList = new LinkedList<Double[]>();
 
-        //String dir = "tachyon://localhost:19998";
-        //String fileName = "/BinData";
-
         //String dir = "./resource";
         // String fileName = "/BinData";
-
-        //generateBinDataWithErrorHandler(dir, fileName);
-
-        //dir = "./resource";
-        //fileName = "/BinData";
 
         try {
             FileSystemInitializer fs = FileSystemAdaptorFactory.BuildFileSystemAdaptor(FileSystemType.LOCAL, this.dir);
@@ -197,15 +187,8 @@ public class Master_forUI {
         } catch (IOException e) {
         }
 
-        /*
-        int port = 8888;
-        MasterMiddleWare commu = new MasterMiddleWare(port);
-        commu.startMaster();
-        */
         DistributedSVD_forUI svd = new DistributedSVD_forUI(commu, this.slaveNum, test, gui, this.rowNum);
 
-
-        //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         while (commu.slaveNum() < this.slaveNum) {
             gui.updateprogressArea(commu.slaveNum() + "slave(s) is found, need "
                     + this.slaveNum + " slaves\n");
@@ -222,6 +205,8 @@ public class Master_forUI {
     }
 
     public void generateBinDataWithErrorHandler(String input) throws Exception {
+        gui.updateprogressArea("Start loading data....\n");
+        gui.updateprogressArea("Input file found: " + input + "\n");
         String[][] stringMat = processor.processingData(input, ",", "dataType");
         this.rowNum = stringMat.length;
         this.columnNum = stringMat[0].length;
@@ -229,7 +214,8 @@ public class Master_forUI {
 
         Path inPath = Paths.get(input);
         this.dir = inPath.getParent().toString();
-        this.fileName = inPath.getFileName().toString() + ".bin";
+        this.dir = "./resource";
+        this.fileName = "/BinData1";
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(tmpFile)));
         for (int j = 0; j < this.columnNum; j ++) {
@@ -241,12 +227,12 @@ public class Master_forUI {
         BinaryDataGenerator g = new BinaryDataGenerator();
         try {
             double[] data = g.read(tmpFile);
-            g.write(data, "./resource/BinData.bin"); //hardcoded as "./resource/BinData.bin"
+            g.write(data, this.dir + this.fileName); //hardcoded as "./resource/BinData.bin"
         } catch (IOException e) {
             e.printStackTrace();
         }
-        File f = new File(tmpFile);
-        f.delete();
+        //File f = new File(tmpFile);
+        //f.delete();
         // start generate config file
 
         JsonGenerator generator = new JsonGenerator();
@@ -260,6 +246,8 @@ public class Master_forUI {
         file.write(generator.getJsonString());
         file.flush();
         file.close();
+        gui.updateprogressArea("generating configuration file...\n");
+        gui.updateprogressArea("Data successfully loaded\n\n");
         return;
     }
 

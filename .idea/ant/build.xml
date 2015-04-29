@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project name="CMULib1.0" default="default" basedir=".">
+    <taskdef name="bundleapp"
+             classname="com.oracle.appbundler.AppBundlerTask"
+             classpath="lib/appbundler-1.0.jar" />
+    <target name="CMULib1.0">
+        <bundleapp outputdirectory="./out"
+                   name="CMULib"
+                   displayname="CMULib"
+                   identifier="edu/cmu/cmulib/API/gui/UI.main"
+                   shortversion="1.0"
+                   applicationCategory="public.app-category.developer-tools"
+                   mainclassname="csf">
+            <classpath file="CMULibDemo.jar"/>
+            <option value="-Dapple.laf.useScreenMenuBar=true"/>
+        </bundleapp>
+    </target>
+</project>

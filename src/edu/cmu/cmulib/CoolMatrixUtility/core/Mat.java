@@ -59,7 +59,6 @@ public class Mat {
 			
 		} else {
 			assert (rows * cols == src.length);
-            System.out.println("testLength: " + src.length + " row " + rows + " col:" + cols);
 			this.inner = new DenseMatrix(rows, cols, src, false);
 			this.data = this.inner.getData();
 		}

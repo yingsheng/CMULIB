@@ -15,7 +15,7 @@ public class BinaryDataGenerator {
   }
 
     public void write(double data[], String filePath) throws IOException {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream("./resource/BinData"));
+        DataOutputStream out = new DataOutputStream(new FileOutputStream(filePath));
         for (int i = 0; i < 1000 * 1000; i++) {
             out.writeDouble(data[i]);
         }

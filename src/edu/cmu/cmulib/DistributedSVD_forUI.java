@@ -37,7 +37,6 @@ public class DistributedSVD_forUI implements Runnable {
         this.gui = gui;
         this.rows = rows;
         this.cols = test.length / this.rows;
-        System.out.println("testLength: " + test.length + " row " + this.rows + " col:" + this.cols);
     }
 
     @Override
@@ -104,7 +103,7 @@ public class DistributedSVD_forUI implements Runnable {
         gui.updateprogressArea(printArrayMid(Like.data) + "\n");
         gui.updateprogressArea("Writing to file ....\n");
         try {
-            String outFileName = gui.outputFolder.getCanonicalPath() + "/result.txt";
+            String outFileName = "./output/result.txt";
             gui.updateprogressArea("outputFile name:" + outFileName + "\n");
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outFileName)));
             writer.write(printArray(Like.data));

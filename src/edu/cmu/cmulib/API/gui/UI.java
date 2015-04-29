@@ -6,8 +6,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -77,7 +76,7 @@ public class UI extends JPanel {
 	private final JButton Visualize = new JButton("Visualize");
 	private final JButton Sampling = new JButton("Sample");
 	private final JTextArea samplingRate = new JTextArea("1");
-	private final JTextArea numberOfSalveNodes = new JTextArea("1");
+	public final JTextArea numberOfSalveNodes = new JTextArea("1");
 	private final JComboBox visuListBox = new JComboBox(VISUA_STRATEGY);
 	private final JComboBox sampListBox = new JComboBox(SAMPLING_STRATEGY);
 	/** run button and progress area */
@@ -189,21 +188,21 @@ public class UI extends JPanel {
 
 		prePanel.setLayout(new GridLayout(3, 1, 3, GRID_GAP));
 		prePanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
-				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
+                5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
 		/** run panel */
 		JPanel runPanel = new JPanel();
 		runPanel.add(runBtn);
 		runBtn.setPreferredSize(new Dimension(500, 50));
 		runPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
-				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
+                5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
 		// ** load data panel */
 		JPanel loadDataPanel = new JPanel();
 		loadDataPanel.add(loadDataBtn);
 		loadDataBtn.setPreferredSize(new Dimension(500, 50));
 		loadDataPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
-				5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
+                5 * BORDER_LEN, 5 * BORDER_LEN, 5 * BORDER_LEN));
 
 		/** advance panel */
 		JPanel advancePanel = new JPanel();
@@ -221,22 +220,22 @@ public class UI extends JPanel {
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		progressPanel.add(scrollPane);
 		progressPanel.setBorder(new TitledBorder(new EtchedBorder(),
-				"Progress & Result", TitledBorder.CENTER,
-				TitledBorder.DEFAULT_POSITION));
+                "Progress & Result", TitledBorder.CENTER,
+                TitledBorder.DEFAULT_POSITION));
 
 		/** dump Panel */
 		JPanel dumpPanel = new JPanel();
 
 		JPanel pathNamePanel = new JPanel();
 		pathNamePanel.setLayout(new GridLayout(DUMP_ITEM_NUM, 1, GRID_GAP,
-				GRID_GAP));
+                GRID_GAP));
 
 		pathNamePanel.add(new JLabel("File to Download: "));
 		pathNamePanel.add(new JLabel("Download to: "));
 
 		JPanel pathFieldPanel = new JPanel();
 		pathFieldPanel.setLayout(new GridLayout(DUMP_ITEM_NUM, 1, GRID_GAP,
-				GRID_GAP));
+                GRID_GAP));
 		pathFieldPanel.add(fileListBox);
 		JPanel downtoBrowse = new JPanel();
 		downtoBrowse.add(dumpPathField);
@@ -254,7 +253,7 @@ public class UI extends JPanel {
 		startDownPanel.add(startDumpBtn);
 		startDumpBtn.setPreferredSize(new Dimension(500, 50));
 		startDownPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_LEN,
-				BORDER_LEN, 5 * BORDER_LEN, BORDER_LEN));
+                BORDER_LEN, 5 * BORDER_LEN, BORDER_LEN));
 
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
@@ -290,6 +289,7 @@ public class UI extends JPanel {
 		browse1Btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+                inputPathFC.setCurrentDirectory(new java.io.File("."));
 				int returnVal = inputPathFC.showOpenDialog(UI.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					inputFile = inputPathFC.getSelectedFile();
@@ -354,15 +354,15 @@ public class UI extends JPanel {
 				if (algoName.equals("SVD")) {
 					try {
 						updateprogressArea("***************** Start Job ***************************\n");
-						core.getProcessor().setWrongDataTypeStrategy(
-								(WrongDataTypeStrategy) dataHandlingBox
-										.getSelectedItem());
+
 						// core.svdMaster(inputFile.getCanonicalPath(),
 						// outputFolder.getCanonicalPath());
+                        /*
 						updateprogressArea("input file set as: "
 								+ inputFile.getCanonicalPath() + "\n");
 						updateprogressArea("output file path set as: "
 								+ outputFolder.getCanonicalPath() + "\n");
+								*/
 						Thread svdRunner = new Thread(new Runnable() {
 							public void run() {
 								try {
@@ -403,13 +403,19 @@ public class UI extends JPanel {
 		startDumpBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				fileToDownloadOption = (String) fileListBox.getSelectedItem();
-
-				if (fileToDownloadOption.equals("Input")) {
-
-				} else if (fileToDownloadOption.equals("Result")) {
-
-				}
+                fileToDownloadOption = (String) fileListBox.getSelectedItem();
+                File in = null, out = null;
+                try {
+                    if (fileToDownloadOption.equals("Input")) {
+                        in = new File(inputFile.getCanonicalPath());
+                    } else if (fileToDownloadOption.equals("Result")) {
+                        in = new File(outputFolder.getCanonicalPath() + "/out", "result.txt");
+                    }
+                    out = new File(downloadToFolder.getCanonicalPath(), "result.txt");
+                    copyFileUsingFileStreams(in, out);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 			}
 		});
 
@@ -420,7 +426,16 @@ public class UI extends JPanel {
 				 * load data here!
 				 * 
 				 */
-				if ((String) visuListBox.getSelectedItem() == "None")
+                //SY
+                core.getProcessor().setWrongDataTypeStrategy(
+                        (WrongDataTypeStrategy) dataHandlingBox
+                                .getSelectedItem());
+                try {
+                    core.generateBinDataWithErrorHandler(inputFile.getCanonicalPath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if ((String) visuListBox.getSelectedItem() == "None")
 					return;
 				System.out.println("Visualization Initiating...\n...\n...");
 
@@ -431,6 +446,24 @@ public class UI extends JPanel {
 			}
 		});
 	}
+
+    private static void copyFileUsingFileStreams(File source, File dest)
+            throws IOException {
+        InputStream input = null;
+        OutputStream output = null;
+        try {
+            input = new FileInputStream(source);
+            output = new FileOutputStream(dest);
+            byte[] buf = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = input.read(buf)) > 0) {
+                output.write(buf, 0, bytesRead);
+            }
+        } finally {
+            input.close();
+            output.close();
+        }
+    }
 
 	public void updateprogressArea(String str) {
 		progressArea.append(str);
