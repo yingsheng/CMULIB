@@ -11,7 +11,7 @@
                    shortversion="1.0"
                    applicationCategory="public.app-category.developer-tools"
                    mainclassname="edu.cmu.cmulib.API.gui.UI">
-            <classpath file="CMULibDemo.jar"/>
+            <classpath file="Ant/CMULibDemo.jar"/>
             <option value="-Dapple.laf.useScreenMenuBar=true"/>
         </bundleapp>
     </target>
